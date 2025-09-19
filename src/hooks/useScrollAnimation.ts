@@ -17,7 +17,7 @@ export const useScrollAnimation = (options: ScrollAnimationOptions = {}) => {
     animationClass = 'animate-fade-in-up'
   } = options
 
-  const elementRef = useRef<HTMLElement>(null)
+  const elementRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
   const [hasTriggered, setHasTriggered] = useState(false)
 
@@ -53,5 +53,5 @@ export const useScrollAnimation = (options: ScrollAnimationOptions = {}) => {
 
   const animationClasses = isVisible ? animationClass : 'opacity-0 translate-y-8'
 
-  return { elementRef, isVisible, animationClasses }
+  return { elementRef: elementRef as React.RefObject<HTMLDivElement>, isVisible, animationClasses }
 }
