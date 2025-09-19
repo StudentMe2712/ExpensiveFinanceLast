@@ -4,8 +4,9 @@
   "description": "Client-facing Telegram bot for Expensive Finance",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node enhanced-bot.js",
+    "dev": "nodemon enhanced-bot.js",
+    "original": "node index.js"
   },
   "dependencies": {
     "node-telegram-bot-api": "^0.64.0",
