@@ -19,20 +19,32 @@
 4. Выберите репозиторий `StudentMe2712/ExpensiveFinance`
 
 ### 2. Настройка переменных окружения
-В Vercel Dashboard → Settings → Environment Variables добавьте:
+В Vercel Dashboard → Settings → Environment Variables добавьте **НАПРЯМУЮ** (не через секреты):
+
+**⚠️ ВАЖНО: Добавляйте переменные напрямую, НЕ создавайте секреты!**
 
 ```bash
-# Database
+# Database (добавьте как обычную переменную)
 DATABASE_URL = postgresql://neondb_owner:npg_2NCTrVw3RPaj@ep-dark-tooth-adac7ukk-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 
-# Telegram Bot
+# Telegram Bot (добавьте как обычные переменные)
 TELEGRAM_BOT_TOKEN = 8275935313:AAEJ6O8HN_6r6X-XRzzRpuWwb8jC883yn8o
 TELEGRAM_CHAT_ID = 549168650
 
-# Next.js
+# Next.js (добавьте как обычные переменные)
 NEXTAUTH_SECRET = expensive-finance-secret-key-2024
 NEXTAUTH_URL = https://your-domain.vercel.app
 ```
+
+**📋 Пошаговая инструкция:**
+1. В Vercel Dashboard перейдите в **Settings** вашего проекта
+2. Выберите **Environment Variables**
+3. Нажмите **Add New**
+4. Введите **Name**: `DATABASE_URL`
+5. Введите **Value**: `postgresql://neondb_owner:npg_2NCTrVw3RPaj@ep-dark-tooth-adac7ukk-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`
+6. Выберите **Environment**: Production (или All)
+7. Нажмите **Save**
+8. Повторите для остальных переменных
 
 ### 3. Настройки проекта
 - **Framework Preset**: Next.js
@@ -74,6 +86,13 @@ NEXTAUTH_URL = https://your-domain.vercel.app
 4. **Проверьте анимации** - скролл эффекты должны работать
 
 ## 🚨 Возможные проблемы
+
+### ❌ "Environment Variable references Secret which does not exist"
+**Проблема:** Vercel пытается найти секреты вместо обычных переменных
+**Решение:** 
+1. Удалите все секреты в Vercel Dashboard → Settings → Secrets
+2. Добавьте переменные как **Environment Variables** (не секреты)
+3. Перезапустите деплой
 
 ### Build ошибки:
 - Проверьте что все переменные окружения добавлены
