@@ -5,7 +5,7 @@ const prisma = new PrismaClient()
 
 // Telegram Bot API
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8275935313:AAEJ6O8HN_6r6X-XRzzRpuWwb8jC883yn8o'
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '8275935313' // ID бота или ваш chat ID
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '-1002971250513' // Group Chat ID
 
 async function sendTelegramMessage(message: string) {
   try {

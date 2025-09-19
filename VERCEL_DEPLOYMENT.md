@@ -29,7 +29,7 @@ DATABASE_URL = postgresql://neondb_owner:npg_2NCTrVw3RPaj@ep-dark-tooth-adac7ukk
 
 # Telegram Bot (добавьте как обычные переменные)
 TELEGRAM_BOT_TOKEN = 8275935313:AAEJ6O8HN_6r6X-XRzzRpuWwb8jC883yn8o
-TELEGRAM_CHAT_ID = 549168650
+TELEGRAM_CHAT_ID = -1002971250513
 
 # Next.js (добавьте как обычные переменные)
 NEXTAUTH_SECRET = expensive-finance-secret-key-2024
