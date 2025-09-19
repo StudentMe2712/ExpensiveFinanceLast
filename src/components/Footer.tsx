@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Phone, Mail, MapPin, Instagram, MessageCircle } from 'lucide-react'
+import { Phone, Mail, MapPin } from 'lucide-react'
+import SocialLinks from './SocialLinks'
 
 const Footer = () => {
   const currentYear = new Date().getFullYear()
@@ -74,32 +75,7 @@ const Footer = () => {
         {/* Нижняя часть */}
         <div className="border-t border-gray-800 mt-8 pt-8">
           {/* Социальные сети */}
-          <div className="flex justify-center space-x-6 mb-6">
-            <a 
-              href="https://instagram.com/expensive_finance" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-white hover:scale-110 transition-all duration-300 hover:shadow-lg hover:shadow-pink-500/30"
-            >
-              <Instagram size={20} />
-            </a>
-            <a 
-              href="https://t.me/expensive_finance" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="w-12 h-12 bg-gradient-to-r from-primary-500 to-primary-600 rounded-full flex items-center justify-center text-white hover:scale-110 transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/30"
-            >
-              <MessageCircle size={20} />
-            </a>
-            <a 
-              href="https://wa.me/77771234567" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center text-white hover:scale-110 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/30"
-            >
-              <MessageCircle size={20} />
-            </a>
-          </div>
+          <SocialLinks />
 
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">

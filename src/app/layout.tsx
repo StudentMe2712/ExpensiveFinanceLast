@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import './globals.css'
 import ChatbotButton from '@/components/ChatbotButton'
+import WhatsAppButton from '@/components/WhatsAppButton'
+import TelegramBotButton from '@/components/TelegramBotButton'
+import VisualEnhancements from '@/components/VisualEnhancements'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -34,8 +37,11 @@ export default function RootLayout({
   return (
     <html lang="ru" className={`${inter.variable} ${playfair.variable}`}>
       <body className="min-h-screen bg-white text-gray-900 antialiased">
+        <VisualEnhancements />
         {children}
         <ChatbotButton />
+        <WhatsAppButton />
+        <TelegramBotButton />
       </body>
     </html>
   )
