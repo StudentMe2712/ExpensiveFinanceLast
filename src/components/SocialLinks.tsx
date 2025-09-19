@@ -19,10 +19,10 @@ const SocialLinks = () => {
     {
       name: 'Telegram Bot',
       icon: MessageCircle,
-      href: 'https://t.me/ExpensiveFinanceBot',
+      href: 'https://t.me/ExpensiveFinanceClientBot',
       color: 'from-primary-500 to-primary-600',
       shadowColor: 'shadow-primary-500/30',
-      description: 'Наш умный бот ответит на ваши вопросы',
+      description: 'Наш клиентский бот ответит на ваши вопросы',
       hoverText: 'Telegram Bot'
     },
     {
