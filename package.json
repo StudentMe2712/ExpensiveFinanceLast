@@ -14,7 +14,10 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "start:all": "node start-all.js",
+    "start:main-bot": "cd telegram-bot && npm start",
+    "start:client-bot": "cd telegram-client-bot && npm start"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

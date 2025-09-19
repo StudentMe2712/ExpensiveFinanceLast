@@ -1,18 +1,29 @@
 const TelegramBot = require('node-telegram-bot-api');
+const ClientBotDatabase = require('./database');
+require('dotenv').config();
 
 // Конфигурация
 const CLIENT_BOT_TOKEN = process.env.TELEGRAM_CLIENT_BOT_TOKEN || '7062627252:AAHhocIpcumSYXFne2Qjrf6ZZJhmHdmdEJI';
 const WEBSITE_URL = process.env.WEBSITE_URL || 'https://expensive-finance.vercel.app';
-const ADMIN_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '-1002971250513';
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_2NCTrVw3RPaj@ep-dark-tooth-adac7ukk-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+
+// Клиентский бот работает независимо, с интеграцией в базу данных
 
 // Создание клиентского бота
-const clientBot = new TelegramBot(CLIENT_BOT_TOKEN, { polling: true });
+const clientBot = new TelegramBot(CLIENT_BOT_TOKEN, { 
+  polling: {
+    interval: 1000,
+    autoStart: true,
+    params: {
+      timeout: 10
+    }
+  }
+});
 
 // Эмодзи для красивого оформления
 const EMOJI = {
   MONEY: '💰', BANK: '🏦', CALCULATOR: '📊', PHONE: '📞', INFO: 'ℹ️', WEBSITE: '🌐',
-  CREDIT: '🚀', MORTGAGE: '🏠', CAR: '🚗', BUSINESS: '💼', DEPOSIT: '📈', PREMIUM: '💎',
-  TERM: '📅', REFILL: '🔄', QUESTION: '❓', BACK: '🔙', APPLICATION: '📋', CALL: '📞',
+  CREDIT: '🚀', MORTGAGE: '🏠', CAR: '🚗', BUSINESS: '💼', QUESTION: '❓', BACK: '🔙', APPLICATION: '📋', CALL: '📞',
   WHATSAPP: '💬', EMAIL: '📧', SUCCESS: '✅', CLOCK: '⏰', SHIELD: '🛡️', USERS: '👥',
   ARROW: '➡️', STAR: '⭐', FIRE: '🔥', GIFT: '🎁', CHECK: '✅', WARNING: '⚠️',
   HEART: '❤️', DIAMOND: '💎', TROPHY: '🏆', ROCKET: '🚀', LIGHTNING: '⚡', TARGET: '🎯',
@@ -21,21 +32,51 @@ const EMOJI = {
   GROWTH: '📈', SECURITY: '🔒', FAST: '⚡', QUALITY: '⭐', SUPPORT: '🤝', EXPERT: '👨‍💼',
   TEAM: '👥', EXPERIENCE: '🎯', GUARANTEE: '🛡️', SPEED: '⚡', RELIABILITY: '🔒',
   INNOVATION: '💡', EXCELLENCE: '🏆', MONEY_BAG: '💰', BANK_CARD: '💳', HOUSE: '🏠',
-  CAR_KEY: '🔑', BUSINESS_SUIT: '👔', GROWTH_CHART: '📊', SECURE_SHIELD: '🛡️'
+  CAR_KEY: '🔑', BUSINESS_SUIT: '👔', GROWTH_CHART: '📊', SECURE_SHIELD: '🛡️', CONFUSED: '😕', LIGHTBULB: '💡', TERM: '📅', CHAT: '💬'
 };
 
 // Состояния пользователей
 const userStates = new Map();
 const userData = new Map();
 
+// Функция для обработки фиксированных вопросов
+function getFixedAnswer(question) {
+  const q = question.toLowerCase();
+  
+  if (q.includes('документ') || q.includes('справк')) {
+    return `${EMOJI.SUCCESS} <b>Документы для кредита:</b>\n\n${EMOJI.CHECK} Паспорт гражданина РК\n${EMOJI.CHECK} ИИН (индивидуальный идентификационный номер)\n${EMOJI.CHECK} Справка о доходах (при необходимости)\n${EMOJI.CHECK} Трудовая книжка или договор\n${EMOJI.CHECK} Справка с места работы\n\n${EMOJI.LIGHTBULB} Для экспресс-кредита документов требуется меньше!`;
+  }
+  
+  if (q.includes('минимальн') || q.includes('сумма')) {
+    return `${EMOJI.MONEY} <b>Минимальная сумма кредита:</b>\n\n${EMOJI.CHECK} От 50,000 тенге\n${EMOJI.CHECK} Максимальная сумма: до 50,000,000 тенге\n${EMOJI.CHECK} Экспресс кредит: до 3,000,000 тенге\n\n${EMOJI.LIGHTBULB} Сумма зависит от вашего дохода и кредитной истории!`;
+  }
+  
+  if (q.includes('досрочн') || q.includes('погашен')) {
+    return `${EMOJI.CHECK} <b>Досрочное погашение:</b>\n\n${EMOJI.SUCCESS} Досрочное погашение БЕЗ штрафов\n${EMOJI.SUCCESS} Частичное досрочное погашение\n${EMOJI.SUCCESS} Полное досрочное погашение\n${EMOJI.SUCCESS} Пересчет процентов\n\n${EMOJI.LIGHTBULB} Уведомите нас за 30 дней до досрочного погашения!`;
+  }
+  
+  if (q.includes('пенсион') || q.includes('льгот')) {
+    return `${EMOJI.HEART} <b>Льготы для пенсионеров:</b>\n\n${EMOJI.SUCCESS} Сниженная процентная ставка\n${EMOJI.SUCCESS} Упрощенная процедура оформления\n${EMOJI.SUCCESS} Гибкие условия погашения\n${EMOJI.SUCCESS} Специальные программы\n\n${EMOJI.LIGHTBULB} Обратитесь к менеджеру для получения подробной информации!`;
+  }
+  
+  if (q.includes('ставк') || q.includes('процент')) {
+    return `${EMOJI.CHART} <b>Процентные ставки:</b>\n\n${EMOJI.CREDIT} Экспресс кредит: от 13,10% годовых\n${EMOJI.MORTGAGE} Ипотека: от 8,50% годовых\n${EMOJI.CAR} Автокредит: от 9,90% годовых\n${EMOJI.BUSINESS} Бизнес кредит: от 12,50% годовых\n\n${EMOJI.LIGHTBULB} Ставка зависит от суммы, срока и вашей кредитной истории!`;
+  }
+  
+  if (q.includes('время') || q.includes('скорост') || q.includes('быстро')) {
+    return `${EMOJI.LIGHTNING} <b>Скорость обработки:</b>\n\n${EMOJI.SUCCESS} Экспресс кредит: одобрение за 24 часа\n${EMOJI.SUCCESS} Ипотека: одобрение за 3-5 дней\n${EMOJI.SUCCESS} Автокредит: одобрение за 1-2 дня\n${EMOJI.SUCCESS} Бизнес кредит: одобрение за 2-3 дня\n\n${EMOJI.LIGHTBULB} Мы работаем быстрее банков!`;
+  }
+  
+  return null; // Если нет фиксированного ответа
+}
+
 // Главное меню
 const mainMenu = {
   reply_markup: {
     keyboard: [
-      [`${EMOJI.CREDIT} Кредиты`, `${EMOJI.BANK} Депозиты`],
-      [`${EMOJI.CALCULATOR} Калькулятор`, `${EMOJI.PHONE} Связаться с менеджером`],
-      [`${EMOJI.INFO} О компании`, `${EMOJI.WEBSITE} Наш сайт`],
-      [`${EMOJI.QUESTION} Задать вопрос`, `${EMOJI.STAR} Наши услуги`]
+      [`${EMOJI.CREDIT} Кредиты`, `${EMOJI.CALCULATOR} Калькулятор`],
+      [`${EMOJI.PHONE} Связаться с менеджером`, `${EMOJI.WEBSITE} Наш сайт`],
+      [`${EMOJI.INFO} О компании`, `${EMOJI.QUESTION} Задать вопрос`]
     ],
     resize_keyboard: true,
     one_time_keyboard: false
@@ -55,58 +96,81 @@ const creditMenu = {
   }
 };
 
-// Депозитное меню
-const depositMenu = {
-  reply_markup: {
-    keyboard: [
-      [`${EMOJI.DEPOSIT} Рахмет депозит`, `${EMOJI.PREMIUM} Премиум депозит`],
-      [`${EMOJI.TERM} Срочный депозит`, `${EMOJI.REFILL} Пополняемый`],
-      [`${EMOJI.QUESTION} Задать вопрос`, `${EMOJI.BACK} Назад в меню`]
-    ],
-    resize_keyboard: true,
-    one_time_keyboard: false
-  }
-};
-
-// Меню услуг
-const servicesMenu = {
-  reply_markup: {
-    keyboard: [
-      [`${EMOJI.BRIEFCASE} Подготовка заявки`, `${EMOJI.SHIELD} Плохая кредитная история`],
-      [`${EMOJI.CHART} Консультации по одобрению`, `${EMOJI.QUESTION} Задать вопрос`],
-      [`${EMOJI.BACK} Назад в меню`]
-    ],
-    resize_keyboard: true,
-    one_time_keyboard: false
-  }
-};
-
-// Меню вопросов
+// Меню для вопросов
 const questionMenu = {
   reply_markup: {
     keyboard: [
-      [`${EMOJI.APPLICATION} Подать заявку`, `${EMOJI.CALL} Позвонить`],
-      [`${EMOJI.WHATSAPP} WhatsApp`, `${EMOJI.BACK} Назад в меню`]
+      [`${EMOJI.CALL} Позвонить`, `${EMOJI.WHATSAPP} WhatsApp`],
+      [`${EMOJI.EMAIL} Email`, `${EMOJI.BACK} Назад в меню`]
     ],
     resize_keyboard: true,
     one_time_keyboard: false
   }
 };
 
+// Обработка команды /stats (только для администраторов)
+clientBot.onText(/\/stats/, async (msg) => {
+  const chatId = msg.chat.id;
+  const userId = msg.from.id;
+
+  // Проверяем права администратора (можно настроить список ID)
+  const adminIds = ['549168650']; // Ваш Telegram ID
+
+  if (!adminIds.includes(userId.toString())) {
+    clientBot.sendMessage(chatId, '❌ У вас нет прав для просмотра статистики');
+    return;
+  }
+
+  try {
+    const stats = await ClientBotDatabase.getBotStats();
+    const recentActivity = await ClientBotDatabase.getRecentActivity(5);
+
+    const statsMessage = `
+📊 <b>Статистика клиентского бота</b>
+
+👥 <b>Пользователи:</b>
+• Всего: ${stats.totalUsers}
+• Активных: ${stats.activeUsers}
+
+❓ <b>Вопросы:</b>
+• Всего: ${stats.totalQuestions}
+• Автоответы: ${stats.fixedAnswers}
+• Ручные: ${stats.manualAnswers}
+
+📊 <b>Расчеты:</b>
+• Всего: ${stats.totalCalculations}
+
+🕐 <b>Последние активности:</b>
+${recentActivity.questions.slice(0, 3).map(q =>
+  `• ${q.user.firstName}: "${q.question.substring(0, 30)}..."`
+).join('\n')}
+    `;
+
+    clientBot.sendMessage(chatId, statsMessage, { parse_mode: 'HTML' });
+  } catch (error) {
+    console.error('Ошибка получения статистики:', error);
+    clientBot.sendMessage(chatId, '❌ Ошибка получения статистики');
+  }
+});
+
 // Обработка команды /start
-clientBot.onText(/\/start/, (msg) => {
+clientBot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
   const firstName = msg.from.first_name;
   const userId = msg.from.id;
-  
-  // Сохраняем данные пользователя
+
+  // Сохраняем данные пользователя в БД
+  const dbUser = await ClientBotDatabase.createOrUpdateUser(msg.from);
+
+  // Сохраняем данные пользователя в памяти
   userData.set(userId, {
     firstName: firstName,
     username: msg.from.username,
     chatId: chatId,
-    joinedAt: new Date()
+    joinedAt: new Date(),
+    dbId: dbUser?.id // Store DB ID
   });
-  
+
   const welcomeMessage = `
 ${EMOJI.SPARKLES} <b>Добро пожаловать в Expensive Finance!</b> ${EMOJI.SPARKLES}
 
@@ -121,9 +185,8 @@ ${EMOJI.USERS} 1000+ довольных клиентов
 ${EMOJI.SHIELD} Индивидуальный подход
 
 ${EMOJI.MAGIC} <b>Что я могу для вас сделать:</b>
-${EMOJI.CREDIT} Рассказать о кредитах и депозитах
-${EMOJI.CALCULATOR} Помочь рассчитать платежи
-${EMOJI.BRIEFCASE} Показать наши услуги
+${EMOJI.CREDIT} Рассказать о кредитах
+${EMOJI.CALCULATOR} Помочь рассчитать платеж
 ${EMOJI.PHONE} Связать с менеджером
 ${EMOJI.QUESTION} Ответить на вопросы
 
@@ -131,13 +194,10 @@ ${EMOJI.ROCKET} <b>Выберите интересующий раздел:</b>
   `;
   
   clientBot.sendMessage(chatId, welcomeMessage, { parse_mode: 'HTML', ...mainMenu });
-  
-  // Уведомляем администраторов о новом пользователе
-  notifyAdmins(`🆕 Новый пользователь бота:\n👤 ${firstName} (@${msg.from.username || 'без username'})\n🆔 ID: ${userId}`);
 });
 
 // Обработка текстовых сообщений
-clientBot.on('message', (msg) => {
+clientBot.on('message', async (msg) => {
   const chatId = msg.chat.id;
   const text = msg.text;
   const userId = msg.from.id;
@@ -159,23 +219,16 @@ clientBot.on('message', (msg) => {
       );
       break;
       
-    case `${EMOJI.BANK} Депозиты`:
-      userStates.set(userId, 'deposits');
-      clientBot.sendMessage(chatId, 
-        `${EMOJI.BANK} <b>Наши депозитные продукты</b>\n\n${EMOJI.SPARKLES} Выберите интересующий вас тип депозита для получения подробной информации:\n\n${EMOJI.DIAMOND} <b>До 17,80% годовых!</b>`,
-        { parse_mode: 'HTML', ...depositMenu }
-      );
-      break;
-      
     case `${EMOJI.CALCULATOR} Калькулятор`:
+      userStates.set(userId, 'calculator_amount');
       clientBot.sendMessage(chatId, 
-        `${EMOJI.CALCULATOR} <b>Кредитный калькулятор</b>\n\n${EMOJI.SPARKLES} Для точного расчета вашего кредита перейдите на наш сайт. Там вы найдете удобный калькулятор с интерактивными слайдерами!\n\n${EMOJI.WEBSITE} Ссылка: ${WEBSITE_URL}/#credit-calculator`,
+        `${EMOJI.CALCULATOR} <b>Кредитный калькулятор</b>\n\n${EMOJI.SPARKLES} Давайте рассчитаем ваш кредит!\n\n${EMOJI.MONEY} <b>Шаг 1:</b> Введите сумму кредита в тенге\n\n${EMOJI.LIGHTBULB} Пример: 1500000 (для 1,500,000 ₸)`,
         {
           parse_mode: 'HTML',
           reply_markup: {
-            inline_keyboard: [[
-              { text: `${EMOJI.CALCULATOR} Открыть калькулятор`, url: `${WEBSITE_URL}/#credit-calculator` }
-            ]]
+            keyboard: [[`${EMOJI.BACK} Отмена`]],
+            resize_keyboard: true,
+            one_time_keyboard: true
           }
         }
       );
@@ -205,7 +258,7 @@ clientBot.on('message', (msg) => {
       
     case `${EMOJI.WEBSITE} Наш сайт`:
       clientBot.sendMessage(chatId, 
-        `${EMOJI.WEBSITE} <b>Добро пожаловать на наш сайт!</b>\n\n${EMOJI.SPARKLES} Там вы найдете:\n${EMOJI.CALCULATOR} Кредитный калькулятор\n${EMOJI.APPLICATION} Онлайн заявки\n${EMOJI.CHART} Актуальные ставки\n${EMOJI.PHONE} Контактную информацию\n${EMOJI.LIGHTBULB} Полезные статьи\n\n${EMOJI.ROCKET} Переходите и изучайте наши услуги!`,
+        `${EMOJI.WEBSITE} <b>Переходим на наш сайт!</b>\n\n${EMOJI.SPARKLES} Там вы найдете:\n${EMOJI.CALCULATOR} Кредитный калькулятор\n${EMOJI.APPLICATION} Онлайн заявки\n${EMOJI.CHART} Актуальные ставки\n${EMOJI.PHONE} Контактную информацию\n\n${EMOJI.ROCKET} Переходите и изучайте наши услуги!`,
         {
           parse_mode: 'HTML',
           reply_markup: {
@@ -214,14 +267,6 @@ clientBot.on('message', (msg) => {
             ]]
           }
         }
-      );
-      break;
-      
-    case `${EMOJI.STAR} Наши услуги`:
-      userStates.set(userId, 'services');
-      clientBot.sendMessage(chatId, 
-        `${EMOJI.STAR} <b>Наши услуги</b>\n\n${EMOJI.SPARKLES} Полный спектр услуг для решения ваших финансовых вопросов. Мы работаем с любыми ситуациями и находим оптимальные решения.\n\n${EMOJI.ROCKET} Выберите интересующую услугу:`,
-        { parse_mode: 'HTML', ...servicesMenu }
       );
       break;
       
@@ -290,73 +335,10 @@ clientBot.on('message', (msg) => {
       );
       break;
       
-    // Депозитные продукты
-    case `${EMOJI.DEPOSIT} Рахмет депозит`:
-      clientBot.sendMessage(chatId, 
-        `${EMOJI.DEPOSIT} <b>Рахмет депозит</b>\n\n${EMOJI.MONEY_BAG} Минимальная сумма: 100,000 ₸\n${EMOJI.CLOCK} Срок: 3, 6, 12 месяцев\n${EMOJI.CHART} Ставка: до 17,80% годовых\n${EMOJI.DIAMOND} Пополняемый депозит\n\n${EMOJI.SUCCESS} Высокий процент\n${EMOJI.SUCCESS} Гибкие условия\n${EMOJI.SUCCESS} Надежная защита\n${EMOJI.SUCCESS} Ежемесячные выплаты\n${EMOJI.SUCCESS} Возможность пополнения\n\n${EMOJI.SPARKLES} Начните копить уже сегодня!`,
-        {
-          parse_mode: 'HTML',
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: `${EMOJI.APPLICATION} Открыть депозит`, url: `${WEBSITE_URL}/#application` }],
-              [{ text: `${EMOJI.CALCULATOR} Рассчитать доход`, url: `${WEBSITE_URL}/#credit-calculator` }],
-              [{ text: `${EMOJI.QUESTION} Задать вопрос`, callback_data: 'ask_question' }]
-            ]
-          }
-        }
-      );
-      break;
-      
-    // Услуги
-    case `${EMOJI.BRIEFCASE} Подготовка заявки`:
-      clientBot.sendMessage(chatId, 
-        `${EMOJI.BRIEFCASE} <b>Подготовка заявки для банков</b>\n\n${EMOJI.SPARKLES} Помогаем правильно оформить все необходимые документы и заявки для максимальных шансов на одобрение.\n\n${EMOJI.SUCCESS} Анализ кредитной истории\n${EMOJI.SUCCESS} Подготовка справок о доходах\n${EMOJI.SUCCESS} Оформление заявки в банк\n${EMOJI.SUCCESS} Сопровождение процесса\n\n${EMOJI.EXPERT} Наши эксперты знают все тонкости банковских требований!`,
-        {
-          parse_mode: 'HTML',
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: `${EMOJI.APPLICATION} Заказать услугу`, url: `${WEBSITE_URL}/#application` }],
-              [{ text: `${EMOJI.QUESTION} Задать вопрос`, callback_data: 'ask_question' }]
-            ]
-          }
-        }
-      );
-      break;
-      
-    case `${EMOJI.SHIELD} Плохая кредитная история`:
-      clientBot.sendMessage(chatId, 
-        `${EMOJI.SHIELD} <b>Помощь клиентам с плохой кредитной историей</b>\n\n${EMOJI.SPARKLES} Специализируемся на работе с клиентами, у которых есть проблемы с кредитной историей.\n\n${EMOJI.SUCCESS} Восстановление кредитной истории\n${EMOJI.SUCCESS} Поиск банков с мягкими условиями\n${EMOJI.SUCCESS} Реструктуризация долгов\n${EMOJI.SUCCESS} Консультации по улучшению КИ\n\n${EMOJI.HEART} Мы верим, что каждый заслуживает второго шанса!`,
-        {
-          parse_mode: 'HTML',
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: `${EMOJI.APPLICATION} Заказать услугу`, url: `${WEBSITE_URL}/#application` }],
-              [{ text: `${EMOJI.QUESTION} Задать вопрос`, callback_data: 'ask_question' }]
-            ]
-          }
-        }
-      );
-      break;
-      
-    case `${EMOJI.CHART} Консультации по одобрению`:
-      clientBot.sendMessage(chatId, 
-        `${EMOJI.CHART} <b>Консультации по повышению шансов на одобрение</b>\n\n${EMOJI.SPARKLES} Даём профессиональные советы по улучшению финансового положения и увеличению вероятности одобрения.\n\n${EMOJI.SUCCESS} Анализ финансового состояния\n${EMOJI.SUCCESS} Рекомендации по улучшению КИ\n${EMOJI.SUCCESS} Выбор оптимальных условий\n${EMOJI.SUCCESS} Стратегия подачи заявок\n\n${EMOJI.TARGET} Наша цель - ваш успех!`,
-        {
-          parse_mode: 'HTML',
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: `${EMOJI.APPLICATION} Заказать консультацию`, url: `${WEBSITE_URL}/#application` }],
-              [{ text: `${EMOJI.QUESTION} Задать вопрос`, callback_data: 'ask_question' }]
-            ]
-          }
-        }
-      );
-      break;
-      
     case `${EMOJI.QUESTION} Задать вопрос`:
       userStates.set(userId, 'asking');
       clientBot.sendMessage(chatId, 
-        `${EMOJI.QUESTION} <b>Задайте ваш вопрос</b>\n\n${EMOJI.SPARKLES} Напишите ваш вопрос, и я передам его нашему менеджеру. Мы ответим в течение часа!\n\n${EMOJI.LIGHTBULB} <b>Примеры вопросов:</b>\n${EMOJI.ARROW} Какие документы нужны для кредита?\n${EMOJI.ARROW} Какова минимальная сумма депозита?\n${EMOJI.ARROW} Какие условия досрочного погашения?\n${EMOJI.ARROW} Есть ли льготы для пенсионеров?`,
+        `${EMOJI.QUESTION} <b>Задайте ваш вопрос</b>\n\n${EMOJI.SPARKLES} Напишите ваш вопрос, и я отвечу на него или передам менеджеру!\n\n${EMOJI.LIGHTBULB} <b>Частые вопросы:</b>\n${EMOJI.ARROW} Какие документы нужны для кредита?\n${EMOJI.ARROW} Какова минимальная сумма кредита?\n${EMOJI.ARROW} Какие условия досрочного погашения?\n${EMOJI.ARROW} Есть ли льготы для пенсионеров?`,
         {
           parse_mode: 'HTML',
           reply_markup: {
@@ -421,36 +403,117 @@ clientBot.on('message', (msg) => {
       break;
       
     default:
-      // Если пользователь в режиме задавания вопросов
-      if (userState === 'asking') {
-        // Передаем вопрос менеджерам
-        const questionMessage = `
-${EMOJI.QUESTION} <b>Новый вопрос от клиента:</b>
-
-${EMOJI.USER} <b>Клиент:</b> ${user.firstName} (@${user.username || 'без username'})
-${EMOJI.ID} <b>ID:</b> ${userId}
-${EMOJI.CHAT} <b>Вопрос:</b> ${text}
-${EMOJI.CLOCK} <b>Время:</b> ${new Date().toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' })}
-
-${EMOJI.LIGHTBULB} Ответьте клиенту в личные сообщения или перезвоните.
-        `;
+      // Если пользователь в режиме калькулятора - ввод суммы
+      if (userState === 'calculator_amount') {
+        const amount = parseInt(text.replace(/\D/g, ''));
+        if (isNaN(amount) || amount < 50000 || amount > 50000000) {
+          clientBot.sendMessage(chatId, 
+            `${EMOJI.WARNING} <b>Неверная сумма!</b>\n\n${EMOJI.LIGHTBULB} Введите сумму от 50,000 до 50,000,000 тенге\n\n${EMOJI.MONEY} Пример: 1500000`,
+            { parse_mode: 'HTML' }
+          );
+          return;
+        }
         
-        notifyAdmins(questionMessage);
+        // Сохраняем сумму и переходим к вводу срока
+        userData.set(userId, { amount });
+        userStates.set(userId, 'calculator_term');
         
         clientBot.sendMessage(chatId, 
-          `${EMOJI.SUCCESS} <b>Ваш вопрос получен!</b>\n\n${EMOJI.CHAT} Вопрос: "${text}"\n\n${EMOJI.EXPERT} Наш менеджер ответит вам в течение часа.\n\n${EMOJI.CLOCK} Время получения: ${new Date().toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' })}`,
-          { parse_mode: 'HTML', ...mainMenu }
+          `${EMOJI.SUCCESS} <b>Сумма:</b> ${new Intl.NumberFormat('ru-RU').format(amount)} ₸\n\n${EMOJI.TERM} <b>Шаг 2:</b> Введите срок кредита в месяцах\n\n${EMOJI.LIGHTBULB} Пример: 24 (для 24 месяцев)`,
+          { parse_mode: 'HTML' }
+        );
+      }
+      // Если пользователь в режиме калькулятора - ввод срока
+      else if (userState === 'calculator_term') {
+        const term = parseInt(text.replace(/\D/g, ''));
+        if (isNaN(term) || term < 7 || term > 60) {
+          clientBot.sendMessage(chatId, 
+            `${EMOJI.WARNING} <b>Неверный срок!</b>\n\n${EMOJI.LIGHTBULB} Введите срок от 7 до 60 месяцев\n\n${EMOJI.TERM} Пример: 24`,
+            { parse_mode: 'HTML' }
+          );
+          return;
+        }
+        
+        // Получаем сумму и рассчитываем кредит
+        const userCalcData = userData.get(userId);
+        const amount = userCalcData.amount;
+        const interestRate = 25.6; // Фиксированная ставка
+        
+        // Расчет аннуитетного платежа
+        const monthlyRate = (interestRate / 100) / 12;
+        const numerator = amount * monthlyRate * Math.pow(1 + monthlyRate, term);
+        const denominator = Math.pow(1 + monthlyRate, term) - 1;
+        const monthlyPayment = numerator / denominator;
+        const totalPayment = monthlyPayment * term;
+        const totalInterest = totalPayment - amount;
+        
+        // Сохраняем расчет в БД
+        const user = userData.get(userId);
+        if (user?.dbId) {
+          await ClientBotDatabase.saveCalculation(
+            user.dbId, 
+            amount, 
+            term, 
+            interestRate, 
+            monthlyPayment, 
+            totalPayment, 
+            totalInterest
+          );
+        }
+        
+        clientBot.sendMessage(chatId, 
+          `${EMOJI.CALCULATOR} <b>Результат расчета:</b>\n\n${EMOJI.MONEY} <b>Сумма кредита:</b> ${new Intl.NumberFormat('ru-RU').format(amount)} ₸\n${EMOJI.TERM} <b>Срок:</b> ${term} месяцев\n${EMOJI.CHART} <b>Ставка:</b> ${interestRate}% годовых\n\n${EMOJI.ROCKET} <b>Результат:</b>\n${EMOJI.CALCULATOR} Ежемесячный платеж: <b>${new Intl.NumberFormat('ru-RU').format(Math.round(monthlyPayment))} ₸</b>\n${EMOJI.MONEY} Общая сумма: <b>${new Intl.NumberFormat('ru-RU').format(Math.round(totalPayment))} ₸</b>\n${EMOJI.CHART} Переплата: <b>${new Intl.NumberFormat('ru-RU').format(Math.round(totalInterest))} ₸</b>\n\n${EMOJI.LIGHTBULB} Для детального расчета с разными параметрами перейдите на сайт!`,
+          {
+            parse_mode: 'HTML',
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `${EMOJI.CALCULATOR} Детальный расчет`, url: `${WEBSITE_URL}/#credit-calculator` },
+                  { text: `${EMOJI.APPLICATION} Подать заявку`, url: `${WEBSITE_URL}/#application` }
+                ],
+                [
+                  { text: `${EMOJI.BACK} Назад в меню`, callback_data: 'back_to_main' }
+                ]
+              ]
+            }
+          }
         );
         
         userStates.set(userId, 'main');
+        userData.delete(userId);
+      }
+      // Если пользователь в режиме задания вопросов
+      else if (userState === 'asking') {
+        // Проверяем на фиксированные вопросы
+        const fixedAnswer = getFixedAnswer(text);
+        const user = userData.get(userId);
+        
+        if (fixedAnswer) {
+          // Сохраняем вопрос с фиксированным ответом в БД
+          if (user?.dbId) {
+            await ClientBotDatabase.saveQuestion(user.dbId, text, fixedAnswer, true);
+          }
+          
+          clientBot.sendMessage(chatId, fixedAnswer, { parse_mode: 'HTML', ...mainMenu });
+          userStates.set(userId, 'main');
+        } else {
+          // Сохраняем вопрос без ответа в БД
+          if (user?.dbId) {
+            await ClientBotDatabase.saveQuestion(user.dbId, text, null, false);
+          }
+          
+          // Передаем вопрос менеджерам
+          clientBot.sendMessage(chatId, 
+            `${EMOJI.SUCCESS} <b>Ваш вопрос получен!</b>\n\n${EMOJI.CHAT} Вопрос: "${text}"\n\n${EMOJI.EXPERT} Наш менеджер ответит вам в течение часа.\n\n${EMOJI.CLOCK} Время получения: ${new Date().toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' })}`,
+            { parse_mode: 'HTML', ...mainMenu }
+          );
+          
+          userStates.set(userId, 'main');
+        }
       } else {
         // Если пользователь написал что-то неожиданное
         if (userState === 'credits') {
           clientBot.sendMessage(chatId, `${EMOJI.CREDIT} Выберите тип кредита из меню ниже:`, creditMenu);
-        } else if (userState === 'deposits') {
-          clientBot.sendMessage(chatId, `${EMOJI.BANK} Выберите тип депозита из меню ниже:`, depositMenu);
-        } else if (userState === 'services') {
-          clientBot.sendMessage(chatId, `${EMOJI.STAR} Выберите услугу из меню ниже:`, servicesMenu);
         } else if (userState === 'contact') {
           clientBot.sendMessage(chatId, `${EMOJI.PHONE} Выберите способ связи из меню ниже:`, questionMenu);
         } else {
@@ -486,30 +549,60 @@ clientBot.on('callback_query', (callbackQuery) => {
         }
       }
     );
+  } else if (data === 'back_to_main') {
+    const userId = callbackQuery.from.id;
+    userStates.set(userId, 'main');
+    
+    clientBot.answerCallbackQuery(callbackQuery.id);
+    clientBot.sendMessage(chatId, 
+      `${EMOJI.BACK} Возвращаемся в главное меню!`,
+      mainMenu
+    );
   }
 });
 
-// Функция уведомления администраторов
-async function notifyAdmins(message) {
-  try {
-    await clientBot.sendMessage(ADMIN_CHAT_ID, message, { parse_mode: 'HTML' });
-  } catch (error) {
-    console.error('Ошибка отправки уведомления администраторам:', error);
-  }
-}
+// Клиентский бот работает как независимый чатбот
 
 // Обработка ошибок
 clientBot.on('polling_error', (error) => {
-  console.error('Polling error:', error);
+  console.error('❌ Polling error:', error.message);
+  if (error.code === 'ETELEGRAM' && error.response?.statusCode === 404) {
+    console.error('💥 Бот не найден или токен неверный!');
+    console.error('🔧 Проверьте токен бота и убедитесь, что бот активен');
+  }
 });
 
 clientBot.on('error', (error) => {
-  console.error('Client Bot error:', error);
+  console.error('❌ Client Bot error:', error.message);
 });
 
-console.log('🤖 Улучшенный клиентский Telegram Bot запущен и готов к работе!');
-console.log('📱 Бот: @ExpensiveFinanceClientbot');
-console.log('🌐 Сайт:', WEBSITE_URL);
-console.log('👥 Админ группа:', ADMIN_CHAT_ID);
+// Обработка успешного запуска
+clientBot.on('polling_error', (error) => {
+  if (error.code === 'ETELEGRAM' && error.response?.statusCode === 404) {
+    console.error('💥 Критическая ошибка: бот не найден!');
+    process.exit(1);
+  }
+});
 
-module.exports = clientBot;
+// Проверка подключения к БД при запуске
+ClientBotDatabase.testConnection().then((connected) => {
+  if (connected) {
+    console.log('✅ База данных: подключена');
+    
+    // Проверяем информацию о боте
+    clientBot.getMe().then((botInfo) => {
+      console.log('🤖 Клиентский Telegram Bot запущен и готов к работе!');
+      console.log(`📱 Бот: ${botInfo.first_name} (@${botInfo.username})`);
+      console.log(`🆔 ID: ${botInfo.id}`);
+      console.log('🌐 Сайт:', WEBSITE_URL);
+      console.log('💬 Режим: Независимый чатбот для клиентов');
+      console.log('🗄️ База данных: Подключена');
+      console.log('🚀 Polling: активен');
+    }).catch((error) => {
+      console.error('❌ Ошибка получения информации о боте:', error.message);
+    });
+  } else {
+    console.log('❌ Ошибка подключения к базе данных!');
+    console.log('🤖 Бот запущен без интеграции с БД');
+  }
+});

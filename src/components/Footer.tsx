@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Phone, Mail, MapPin } from 'lucide-react'
+import { Phone, Mail, MapPin, MessageCircle } from 'lucide-react'
 import SocialLinks from './SocialLinks'
 
 const Footer = () => {
@@ -69,6 +69,22 @@ const Footer = () => {
                 Контакты
               </Link>
             </nav>
+            
+            {/* Кнопка для перехода к клиентскому боту */}
+            <div className="mt-6">
+              <a 
+                href="https://t.me/ExpensiveFinanceClientbot" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-2 bg-gradient-to-r from-primary-600 to-primary-800 hover:from-primary-700 hover:to-primary-900 text-white px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
+              >
+                <MessageCircle size={18} />
+                <span>💬 Задать вопрос боту</span>
+              </a>
+              <p className="text-gray-400 text-xs mt-2">
+                Получите быстрый ответ на ваши вопросы
+              </p>
+            </div>
           </div>
         </div>
 
