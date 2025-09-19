@@ -2,7 +2,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
 
 // Конфигурация
-const CLIENT_BOT_TOKEN = process.env.TELEGRAM_CLIENT_BOT_TOKEN || 'YOUR_CLIENT_BOT_TOKEN_HERE';
+const CLIENT_BOT_TOKEN = process.env.TELEGRAM_CLIENT_BOT_TOKEN || '7062627252:AAHhocIpcumSYXFne2Qjrf6ZZJhmHdmdEJI';
 const WEBSITE_URL = process.env.WEBSITE_URL || 'https://expensive-finance.vercel.app';
 const ADMIN_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '-1002971250513'; // Группа для уведомлений
 
