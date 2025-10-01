@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { getUserFromToken } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
@@ -45,6 +46,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Проверяем авторизацию (опционально)
+    const token = request.cookies.get('auth-token')?.value
+    let userId = null
+    
+    if (token) {
+      const user = await getUserFromToken(token)
+      userId = user?.id || null
+    }
+
     // Сохранение в базу данных
     const application = await prisma.application.create({
       data: {
@@ -56,6 +66,7 @@ export async function POST(request: NextRequest) {
         purpose: comment || null,
         hasInsurance: false,
         status: 'NEW',
+        userId: userId,
         createdAt: new Date(),
       },
     })
@@ -98,14 +109,58 @@ ${comment ? `💬 <b>Комментарий:</b> ${comment}` : ''}
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Проверяем авторизацию
+    const token = request.cookies.get('auth-token')?.value
+    const user = token ? await getUserFromToken(token) : null
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Необходима авторизация' },
+        { status: 401 }
+      )
+    }
+
+    // Если админ - показываем все заявки, иначе только заявки пользователя
+    const where = user.role === 'ADMIN' 
+      ? {}
+      : {
+          OR: [
+            { userId: user.id },
+            { email: user.email }
+          ]
+        }
+
     const applications = await prisma.application.findMany({
+      where,
       orderBy: { createdAt: 'desc' },
-      take: 10, // Последние 10 заявок
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
     })
 
-    return NextResponse.json({ applications })
+    return NextResponse.json({ 
+      success: true,
+      applications: applications.map(app => ({
+        id: app.id,
+        name: app.name,
+        phone: app.phone,
+        email: app.email,
+        loanAmount: app.loanAmount,
+        loanTerm: app.loanTerm,
+        status: app.status,
+        createdAt: app.createdAt.toISOString(),
+        comment: app.comment,
+        user: app.user
+      }))
+    })
   } catch (error) {
     console.error('Error fetching applications:', error)
     return NextResponse.json(

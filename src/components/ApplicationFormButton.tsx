@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ArrowRight, X } from 'lucide-react'
 import ApplicationForm from './ApplicationForm'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface ApplicationFormButtonProps {
   className?: string
@@ -10,7 +11,8 @@ interface ApplicationFormButtonProps {
   onClick?: () => void
 }
 
-const ApplicationFormButton = ({ className = "btn-primary glow-medium", children = "Оставить заявку", onClick }: ApplicationFormButtonProps) => {
+const ApplicationFormButton = ({ className = "btn-primary glow-medium", children, onClick }: ApplicationFormButtonProps) => {
+  const { t } = useLanguage()
   const [isFormOpen, setIsFormOpen] = useState(false)
 
   return (
@@ -22,7 +24,7 @@ const ApplicationFormButton = ({ className = "btn-primary glow-medium", children
         }}
         className={`${className} inline-flex items-center justify-center`}
       >
-        {children}
+        {children || t('common.submitApplication')}
         <ArrowRight size={20} className="ml-2" />
       </button>
 
@@ -33,12 +35,12 @@ const ApplicationFormButton = ({ className = "btn-primary glow-medium", children
           onClick={() => setIsFormOpen(false)}
         >
           <div 
-            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative"
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative transition-colors duration-300"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setIsFormOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors z-10"
             >
               <X size={24} />
             </button>

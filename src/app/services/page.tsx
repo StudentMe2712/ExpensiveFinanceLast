@@ -1,67 +1,91 @@
+'use client'
+
 import ServicesSection from '@/components/ServicesSection'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ApplicationFormButton from '@/components/ApplicationFormButton'
 import { FileText, CreditCard, TrendingUp, CheckCircle, Phone, Clock, Shield, Award } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function ServicesPage() {
+  const { t } = useLanguage()
+
   const additionalServices = [
     {
       icon: Phone,
-      title: 'Консультации по телефону',
-      description: 'Бесплатные консультации по всем вопросам кредитования',
-      price: 'Бесплатно'
+      title: t('services.additionalServices.phoneConsultation.title'),
+      description: t('services.additionalServices.phoneConsultation.description'),
+      price: t('services.additionalServices.phoneConsultation.price')
     },
     {
       icon: Clock,
-      title: 'Экспресс-анализ кредитной истории',
-      description: 'Быстрая оценка ваших шансов на получение кредита',
-      price: 'От 5 000 ₸'
+      title: t('services.additionalServices.expressAnalysis.title'),
+      description: t('services.additionalServices.expressAnalysis.description'),
+      price: t('services.additionalServices.expressAnalysis.price')
     },
     {
       icon: Shield,
-      title: 'Страхование кредитов',
-      description: 'Помощь в оформлении страховки для защиты ваших интересов',
-      price: 'От 2% от суммы кредита'
+      title: t('services.additionalServices.insurance.title'),
+      description: t('services.additionalServices.insurance.description'),
+      price: t('services.additionalServices.insurance.price')
     },
     {
       icon: Award,
-      title: 'VIP-сопровождение',
-      description: 'Персональный менеджер на всех этапах получения кредита',
-      price: 'От 50 000 ₸'
+      title: t('services.additionalServices.vipSupport.title'),
+      description: t('services.additionalServices.vipSupport.description'),
+      price: t('services.additionalServices.vipSupport.price')
     }
   ]
 
   const processSteps = [
     {
       step: 1,
-      title: 'Первичная консультация',
-      description: 'Анализируем вашу ситуацию и определяем оптимальную стратегию',
-      duration: '30 минут'
+      title: t('services.process.steps.initialConsultation.title'),
+      description: t('services.process.steps.initialConsultation.description'),
+      duration: t('services.process.steps.initialConsultation.duration')
     },
     {
       step: 2,
-      title: 'Подготовка документов',
-      description: 'Помогаем собрать и правильно оформить все необходимые документы',
-      duration: '1-2 дня'
+      title: t('services.process.steps.documentPreparation.title'),
+      description: t('services.process.steps.documentPreparation.description'),
+      duration: t('services.process.steps.documentPreparation.duration')
     },
     {
       step: 3,
-      title: 'Подача заявок',
-      description: 'Подаем заявки в несколько подходящих банков одновременно',
-      duration: '1 день'
+      title: t('services.process.steps.applicationSubmission.title'),
+      description: t('services.process.steps.applicationSubmission.description'),
+      duration: t('services.process.steps.applicationSubmission.duration')
     },
     {
       step: 4,
-      title: 'Сопровождение процесса',
-      description: 'Контролируем рассмотрение заявки и взаимодействуем с банком',
-      duration: '3-7 дней'
+      title: t('services.process.steps.processSupport.title'),
+      description: t('services.process.steps.processSupport.description'),
+      duration: t('services.process.steps.processSupport.duration')
     },
     {
       step: 5,
-      title: 'Получение одобрения',
-      description: 'Помогаем оформить кредитный договор на лучших условиях',
-      duration: '1 день'
+      title: t('services.process.steps.approval.title'),
+      description: t('services.process.steps.approval.description'),
+      duration: t('services.process.steps.approval.duration')
+    }
+  ]
+
+  const faqData = [
+    {
+      question: t('services.faq.questions.pricing.question'),
+      answer: t('services.faq.questions.pricing.answer')
+    },
+    {
+      question: t('services.faq.questions.documents.question'),
+      answer: t('services.faq.questions.documents.answer')
+    },
+    {
+      question: t('services.faq.questions.badCredit.question'),
+      answer: t('services.faq.questions.badCredit.answer')
+    },
+    {
+      question: t('services.faq.questions.timing.question'),
+      answer: t('services.faq.questions.timing.answer')
     }
   ]
 
@@ -69,34 +93,34 @@ export default function ServicesPage() {
     <main className="min-h-screen">
       <Header />
       <ServicesSection />
-      
+
       {/* Дополнительные услуги */}
-      <section className="section-padding bg-white geometric-bg">
+      <section className="section-padding bg-white dark:bg-gray-900 transition-colors duration-300">
         <div className="container-max">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Дополнительные услуги
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              {t('services.additionalServices.title')}
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Полный спектр услуг для решения любых финансовых задач
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              {t('services.additionalServices.subtitle')}
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {additionalServices.map((service, index) => (
-              <div key={index} className="card-subtle glow-subtle text-center">
+              <div key={index} className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 text-center transition-colors duration-300">
                 <div className="flex justify-center mb-4">
                   <div className="w-12 h-12 bg-gradient-to-r from-primary-500 to-primary-700 rounded-full flex items-center justify-center">
                     <service.icon size={24} className="text-white" />
                   </div>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
                   {service.title}
                 </h3>
-                <p className="text-gray-600 text-sm mb-3">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
                   {service.description}
                 </p>
-                <div className="text-primary-600 font-bold">
+                <div className="text-primary-600 dark:text-primary-400 font-bold">
                   {service.price}
                 </div>
               </div>
@@ -106,36 +130,36 @@ export default function ServicesPage() {
       </section>
 
       {/* Процесс работы */}
-      <section className="section-padding luxury-gradient decorative-dots">
+      <section className="section-padding luxury-gradient">
         <div className="container-max">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Как мы работаем
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              {t('services.process.title')}
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Простой и прозрачный процесс получения кредита
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              {t('services.process.subtitle')}
             </p>
           </div>
-          
+
           <div className="space-y-8">
             {processSteps.map((step, index) => (
-              <div key={index} className="flex items-center space-x-6">
+              <div key={index} className="flex items-start space-x-6">
                 <div className="flex-shrink-0">
-                  <div className="w-16 h-16 bg-gradient-to-r from-primary-500 to-primary-700 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-primary-500 text-white rounded-full flex items-center justify-center">
                     <span className="text-white text-xl font-bold">{step.step}</span>
                   </div>
                 </div>
-                <div className="flex-1 card-medium glow-medium">
+                <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 transition-colors duration-300">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                         {step.title}
                       </h3>
-                      <p className="text-gray-600">
+                      <p className="text-gray-600 dark:text-gray-300">
                         {step.description}
                       </p>
                     </div>
-                    <div className="text-primary-600 font-medium ml-4">
+                    <div className="text-primary-600 dark:text-primary-400 font-medium ml-4">
                       {step.duration}
                     </div>
                   </div>
@@ -147,38 +171,21 @@ export default function ServicesPage() {
       </section>
 
       {/* Часто задаваемые вопросы */}
-      <section className="section-padding bg-white">
+      <section className="section-padding bg-white dark:bg-gray-900 transition-colors duration-300">
         <div className="container-max">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Часто задаваемые вопросы
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              {t('services.faq.title')}
             </h2>
           </div>
-          
-          <div className="max-w-3xl mx-auto space-y-6">
-            {[
-              {
-                question: 'Сколько стоят ваши услуги?',
-                answer: 'Первичная консультация бесплатна. Оплата за услуги происходит только после успешного получения кредита. Размер комиссии зависит от сложности случая и составляет от 2% до 5% от суммы кредита.'
-              },
-              {
-                question: 'Какие документы нужны для подачи заявки?',
-                answer: 'Базовый пакет: паспорт, справка о доходах, трудовая книжка. Дополнительные документы зависят от типа кредита и требований банка. Мы поможем собрать полный пакет документов.'
-              },
-              {
-                question: 'Можете ли вы помочь с плохой кредитной историей?',
-                answer: 'Да, это наша специализация. У нас есть опыт работы с банками, которые лояльно относятся к заемщикам с проблемной кредитной историей. Мы поможем найти оптимальное решение.'
-              },
-              {
-                question: 'Как быстро можно получить результат?',
-                answer: 'Стандартный срок рассмотрения заявки в банке составляет 3-7 рабочих дней. В некоторых случаях возможно ускоренное рассмотрение за 1-2 дня.'
-              }
-            ].map((faq, index) => (
-              <div key={index} className="card-subtle glow-subtle">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {faqData.map((faq, index) => (
+              <div key={index} className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
                   {faq.question}
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-300">
                   {faq.answer}
                 </p>
               </div>
@@ -187,13 +194,12 @@ export default function ServicesPage() {
           
           {/* Призыв к действию */}
           <div className="text-center mt-16">
-            <div className="card-medium glow-medium max-w-2xl mx-auto">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Нужна помощь с получением кредита?
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg border border-gray-200 dark:border-gray-700 max-w-2xl mx-auto transition-colors duration-300">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                {t('services.faq.cta.title')}
               </h3>
-              <p className="text-gray-600 mb-6">
-                Наши эксперты готовы помочь вам получить кредит на выгодных условиях. 
-                Первичная консультация бесплатно!
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                {t('services.faq.cta.subtitle')}
               </p>
               <ApplicationFormButton />
             </div>

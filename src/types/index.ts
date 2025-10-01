@@ -1,13 +1,19 @@
 export interface Application {
   id: string;
-  fullName: string;
+  name: string;
   phone: string;
-  email: string;
-  loanAmount: number;
+  email: string | null;
+  loanAmount: number | null;
+  loanTerm: number | null;
   comment?: string | null;
   status: ApplicationStatus;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
 }
 
 export interface ApplicationFormData {
@@ -36,6 +42,7 @@ export interface News {
 }
 
 export enum ApplicationStatus {
+  NEW = 'NEW',
   PENDING = 'PENDING',
   IN_PROGRESS = 'IN_PROGRESS',
   SENT_TO_BANK = 'SENT_TO_BANK',

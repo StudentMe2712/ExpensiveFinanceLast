@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react'
 import { Calculator, Info } from 'lucide-react'
 import ApplicationFormButton from './ApplicationFormButton'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const CreditCalculator = () => {
+  const { t } = useLanguage()
   const [loanAmount, setLoanAmount] = useState(1500000)
   const [loanTerm, setLoanTerm] = useState(36) // в месяцах
   const [hasInsurance, setHasInsurance] = useState(true)
@@ -30,34 +32,34 @@ const CreditCalculator = () => {
   }
 
   const loanAmountOptions = [
-    { value: 500000, label: '500 тыс ₸' },
-    { value: 1000000, label: '1 млн ₸' },
-    { value: 1500000, label: '1,5 млн ₸' },
-    { value: 2000000, label: '2 млн ₸' },
-    { value: 3000000, label: '3 млн ₸' },
-    { value: 8000000, label: '8 млн ₸' },
+    { value: 500000, label: t('creditCalculator.amountOptions.500k') },
+    { value: 1000000, label: t('creditCalculator.amountOptions.1m') },
+    { value: 1500000, label: t('creditCalculator.amountOptions.1_5m') },
+    { value: 2000000, label: t('creditCalculator.amountOptions.2m') },
+    { value: 3000000, label: t('creditCalculator.amountOptions.3m') },
+    { value: 8000000, label: t('creditCalculator.amountOptions.8m') },
   ]
 
   const loanTermOptions = [
-    { value: 12, label: '1 год' },
-    { value: 24, label: '2 года' },
-    { value: 36, label: '3 года' },
-    { value: 48, label: '4 года' },
-    { value: 60, label: '5 лет' },
+    { value: 12, label: t('creditCalculator.termOptions.1year') },
+    { value: 24, label: t('creditCalculator.termOptions.2years') },
+    { value: 36, label: t('creditCalculator.termOptions.3years') },
+    { value: 48, label: t('creditCalculator.termOptions.4years') },
+    { value: 60, label: t('creditCalculator.termOptions.5years') },
   ]
 
   return (
-    <section className="section-padding bg-gradient-to-br from-white to-onyx-50 relative overflow-hidden">
+    <section className="section-padding bg-gradient-to-br from-white to-onyx-50 dark:from-gray-800 dark:to-gray-900 relative overflow-hidden transition-colors duration-300">
       {/* Декоративный фон */}
       <div className="absolute inset-0 decorative-grid opacity-20"></div>
       
       <div className="container-max relative z-10">
         <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-            Кредитный <span className="text-gradient">калькулятор</span>
+          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            {t('creditCalculator.title')} <span className="text-gradient">{t('creditCalculator.titleHighlight')}</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Рассчитайте и получите решение по кредиту
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            {t('creditCalculator.subtitle')}
           </p>
         </div>
 
@@ -65,8 +67,8 @@ const CreditCalculator = () => {
           {/* Левая часть - настройки */}
           <div className="space-y-8">
             {/* Сумма кредита */}
-            <div className="card glow-subtle">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Сумма кредита</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:shadow-primary-500/20">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{t('creditCalculator.loanAmount.title')}</h3>
               <div className="mb-4">
                 <div className="text-2xl font-bold text-primary-600 mb-2">
                   {formatCurrency(loanAmount)}
@@ -94,8 +96,8 @@ const CreditCalculator = () => {
                     onClick={() => setLoanAmount(option.value)}
                     className={`px-3 py-2 text-sm rounded-lg font-medium transition-all duration-200 ${
                       loanAmount === option.value
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-primary-600 text-white'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                   >
                     {option.label}
@@ -105,11 +107,11 @@ const CreditCalculator = () => {
             </div>
 
             {/* Срок кредита */}
-            <div className="card glow-subtle">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Срок</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:shadow-primary-500/20">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{t('creditCalculator.loanTerm.title')}</h3>
               <div className="mb-4">
                 <div className="text-2xl font-bold text-primary-600 mb-2">
-                  {Math.round(loanTerm / 12 * 10) / 10} года
+                  {Math.round(loanTerm / 12 * 10) / 10} {t('creditCalculator.loanTerm.years')}
                 </div>
                 <input
                   type="range"
@@ -121,8 +123,8 @@ const CreditCalculator = () => {
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-primary"
                 />
                 <div className="flex justify-between text-sm text-gray-500 mt-2">
-                  <span>7 месяцев</span>
-                  <span>5 лет</span>
+                  <span>{t('creditCalculator.loanTerm.minTerm')}</span>
+                  <span>{t('creditCalculator.loanTerm.maxTerm')}</span>
                 </div>
               </div>
               
@@ -134,8 +136,8 @@ const CreditCalculator = () => {
                     onClick={() => setLoanTerm(option.value)}
                     className={`px-3 py-2 text-sm rounded-lg font-medium transition-all duration-200 ${
                       loanTerm === option.value
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-primary-600 text-white'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                   >
                     {option.label}
@@ -145,18 +147,18 @@ const CreditCalculator = () => {
             </div>
 
             {/* Метод погашения */}
-            <div className="card glow-subtle">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Метод ежемесячного погашения</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:shadow-primary-500/20">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{t('creditCalculator.paymentMethod.title')}</h3>
               <div className="grid grid-cols-2 gap-3">
-                <button className="bg-gray-900 text-white px-4 py-2 rounded-lg font-medium">
-                  Равными платежами
+                <button className="bg-primary-600 text-white px-4 py-2 rounded-lg font-medium">
+                  {t('creditCalculator.paymentMethod.equalPayments')}
                 </button>
-                <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors">
-                  С уменьшением
+                <button className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                  {t('creditCalculator.paymentMethod.decreasingPayments')}
                 </button>
               </div>
               <button className="text-primary-600 text-sm mt-3 hover:text-primary-700 transition-colors">
-                В чем разница методов погашения?
+                {t('creditCalculator.paymentMethod.differenceQuestion')}
               </button>
             </div>
           </div>
@@ -175,7 +177,7 @@ const CreditCalculator = () => {
                         : 'text-white hover:bg-white hover:bg-opacity-10'
                     }`}
                   >
-                    Со страховкой
+                    {t('creditCalculator.insurance.withInsurance')}
                   </button>
                   <button
                     onClick={() => setHasInsurance(false)}
@@ -185,14 +187,14 @@ const CreditCalculator = () => {
                         : 'text-white hover:bg-white hover:bg-opacity-10'
                     }`}
                   >
-                    Без страховки
+                    {t('creditCalculator.insurance.withoutInsurance')}
                   </button>
                 </div>
               </div>
 
               {/* Ежемесячный платеж */}
               <div className="text-center mb-8">
-                <div className="text-sm opacity-80 mb-2">Ежемесячный платеж</div>
+                <div className="text-sm opacity-80 mb-2">{t('creditCalculator.monthlyPayment')}</div>
                 <div className="text-4xl lg:text-5xl font-bold mb-4">
                   {formatCurrency(monthlyPayment)}
                 </div>
@@ -200,30 +202,19 @@ const CreditCalculator = () => {
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
                     <div className="text-xl font-bold">{formatCurrency(totalPayment)}</div>
-                    <div className="text-sm opacity-80">Общая переплата</div>
+                    <div className="text-sm opacity-80">{t('creditCalculator.totalOverpayment')}</div>
                   </div>
                   <div>
                     <div className="text-xl font-bold">{interestRate}%</div>
-                    <div className="text-sm opacity-80">Процентная ставка</div>
+                    <div className="text-sm opacity-80">{t('creditCalculator.interestRate')}</div>
                   </div>
                 </div>
               </div>
 
-              {/* Подробнее о страховании */}
-              <div className="border-t border-white border-opacity-20 pt-6 mb-6">
-                <button className="text-white text-sm underline hover:no-underline transition-all duration-200">
-                  Подробнее о страховании
-                </button>
-                <div className="flex items-center mt-2 text-sm opacity-80">
-                  <Info size={16} className="mr-2" />
-                  <span>Не является публичной офертой</span>
-                </div>
-              </div>
-
-              {/* Кнопка заявки */}
+              {/* Кнопка действия */}
               <ApplicationFormButton 
-                className="w-full bg-accent-500 hover:bg-accent-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-xl"
-                children="Подать заявку"
+                className="w-full bg-white text-primary-600 hover:bg-gray-100 font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:scale-105"
+                children={t('creditCalculator.submitApplication')}
               />
             </div>
           </div>
@@ -234,5 +225,3 @@ const CreditCalculator = () => {
 }
 
 export default CreditCalculator
-
-

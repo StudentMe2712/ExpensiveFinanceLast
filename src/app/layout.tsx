@@ -3,6 +3,9 @@ import { Inter, Playfair_Display } from 'next/font/google'
 import './globals.css'
 import ChatbotButton from '@/components/ChatbotButton'
 import VisualEnhancements from '@/components/VisualEnhancements'
+import { ThemeProvider } from '@/components/ThemeProvider'
+import { LanguageProvider } from '@/contexts/LanguageContext'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -34,10 +37,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru" className={`${inter.variable} ${playfair.variable}`}>
-      <body className="min-h-screen bg-white text-gray-900 antialiased">
-        <VisualEnhancements />
-        {children}
-        <ChatbotButton />
+      <body className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased transition-colors duration-300">
+        <AuthProvider>
+          <LanguageProvider>
+            <ThemeProvider>
+              <VisualEnhancements />
+              {children}
+              <ChatbotButton />
+            </ThemeProvider>
+          </LanguageProvider>
+        </AuthProvider>
       </body>
     </html>
   )

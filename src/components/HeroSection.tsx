@@ -3,12 +3,16 @@
 import Link from 'next/link'
 import { Shield, Clock, Users } from 'lucide-react'
 import ApplicationFormButton from './ApplicationFormButton'
+import { FadeInUp, FadeInLeft, FadeInRight, AnimatedList } from './ui/AnimatedWrapper'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const HeroSection = () => {
+  const { t } = useLanguage()
+
   const stats = [
-    { icon: Shield, value: '95%', label: 'Успешных заявок' },
-    { icon: Clock, value: '24ч', label: 'Средний срок рассмотрения' },
-    { icon: Users, value: '1000+', label: 'Довольных клиентов' },
+    { icon: Shield, value: '95%', label: t('hero.stats.successfulApplications') },
+    { icon: Clock, value: '24ч', label: t('hero.stats.averageTime') },
+    { icon: Users, value: '1000+', label: t('hero.stats.satisfiedClients') },
   ]
 
   return (
@@ -16,52 +20,49 @@ const HeroSection = () => {
       <div className="container-max">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Левая колонка - текст */}
-          <div className="space-y-8 animate-fade-in">
+          <FadeInLeft className="space-y-8">
             <div className="space-y-4">
-              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                Помогаем получить{' '}
-                <span className="text-gradient">кредит</span>,{' '}
-                даже если банки отказывают
+              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
+                <span dangerouslySetInnerHTML={{ __html: t('hero.title') }} />
               </h1>
-              <p className="text-xl text-gray-600 leading-relaxed">
-                Expensive Finance — надёжный партнёр в решении финансовых вопросов. 
-                Индивидуальный подход и многолетний опыт работы с банками.
+              <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+                {t('hero.subtitle')}
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
               <ApplicationFormButton />
               <Link href="/about" className="btn-outline glow-subtle inline-flex items-center justify-center">
-                Узнать больше
+                {t('hero.learnMore')}
               </Link>
             </div>
 
             {/* Статистика */}
-            <div className="grid grid-cols-3 gap-6 pt-8">
+            <AnimatedList className="grid grid-cols-3 gap-6 pt-8" staggerDelay={150}>
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
                   <div className="flex justify-center mb-2">
                     <stat.icon size={24} className="text-primary-500" />
                   </div>
-                  <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                  <div className="text-sm text-gray-600">{stat.label}</div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{stat.label}</div>
                 </div>
               ))}
-            </div>
-          </div>
+            </AnimatedList>
+          </FadeInLeft>
 
           {/* Правая колонка - изображение/иллюстрация */}
-          <div className="relative animate-slide-up">
-            <div className="bg-gradient-to-br from-primary-100 to-primary-200 geometric-bg rounded-2xl p-8 shadow-2xl glow-intense">
-              <div className="bg-white rounded-xl p-6 shadow-lg">
+          <FadeInRight className="relative">
+            <div className="bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-800 dark:to-primary-900 geometric-bg rounded-2xl p-8 shadow-2xl">
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center">
                       <Shield size={24} className="text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Быстрое одобрение</h3>
-                      <p className="text-sm text-gray-600">Высокие шансы на получение кредита</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">{t('hero.features.fastApproval')}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{t('hero.features.fastApprovalDesc')}</p>
                     </div>
                   </div>
                   
@@ -70,8 +71,8 @@ const HeroSection = () => {
                       <Users size={24} className="text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Индивидуальный подход</h3>
-                      <p className="text-sm text-gray-600">Персональные решения для каждого клиента</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">{t('hero.features.individualApproach')}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{t('hero.features.individualApproachDesc')}</p>
                     </div>
                   </div>
                   
@@ -80,14 +81,14 @@ const HeroSection = () => {
                       <Clock size={24} className="text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Быстрые сроки</h3>
-                      <p className="text-sm text-gray-600">Рассмотрение заявки в течение 24 часов</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">{t('hero.features.fastTerms')}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{t('hero.features.fastTermsDesc')}</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </FadeInRight>
         </div>
       </div>
 

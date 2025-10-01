@@ -4,19 +4,26 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
 import ApplicationFormButton from './ApplicationFormButton'
+import { ThemeToggleCompact } from './ThemeToggle'
+import { LanguageSwitcherCompact } from './LanguageSwitcher'
+import { useLanguage } from '@/contexts/LanguageContext'
+import AuthButton from './AuthButton'
+import UserMenu from './UserMenu'
+import { useAuth } from '@/contexts/AuthContext'
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { t } = useLanguage()
+  const { user } = useAuth()
 
   const navigation = [
-    { name: 'Главная', href: '/' },
-    { name: 'О компании', href: '/about' },
-    { name: 'Услуги', href: '/services' },
-    { name: 'Контакты', href: '/#contacts' },
+    { name: t('navigation.home'), href: '/' },
+    { name: t('navigation.about'), href: '/about' },
+    { name: t('navigation.services'), href: '/services' },
   ]
 
   return (
-    <header className="bg-white shadow-lg sticky top-0 z-50">
+    <header className="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50 transition-colors duration-300">
       <div className="container-max">
         <div className="flex justify-between items-center py-4">
           {/* Логотип */}
@@ -33,16 +40,19 @@ const Header = () => {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-gray-700 hover:text-primary-600 font-medium transition-colors duration-200"
+                className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors duration-200"
               >
                 {item.name}
               </Link>
             ))}
           </nav>
 
-          {/* CTA кнопка */}
-          <div className="hidden md:block">
+          {/* CTA кнопка и переключатели */}
+          <div className="hidden md:flex items-center space-x-4">
+            <LanguageSwitcherCompact />
+            <ThemeToggleCompact />
             <ApplicationFormButton />
+            {user ? <UserMenu /> : <AuthButton />}
           </div>
 
           {/* Мобильное меню */}
@@ -57,20 +67,27 @@ const Header = () => {
 
         {/* Мобильное меню */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4">
+          <div className="md:hidden border-t border-gray-200 dark:border-gray-700 py-4">
             <nav className="flex flex-col space-y-4">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="text-gray-700 hover:text-primary-600 font-medium transition-colors duration-200"
+                  className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors duration-200"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
                 </Link>
               ))}
-              <div className="mt-4">
-                <ApplicationFormButton onClick={() => setIsMenuOpen(false)} />
+              <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <LanguageSwitcherCompact />
+                  <ThemeToggleCompact />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <ApplicationFormButton onClick={() => setIsMenuOpen(false)} />
+                  {user ? <UserMenu /> : <AuthButton />}
+                </div>
               </div>
             </nav>
           </div>

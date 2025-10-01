@@ -18,8 +18,12 @@ model Application {
   hasInsurance Boolean  @default(false)
   comment      String?
   status       Status   @default(NEW)
+  userId       String?  // Связь с пользователем
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  // Связи
+  user User? @relation(fields: [userId], references: [id])
 
   @@map("applications")
 }
@@ -52,4 +56,106 @@ enum Status {
   SENT_TO_BANK
   APPROVED
   REJECTED
+}
+
+// Таблицы для клиентского бота
+model ClientBotUser {
+  id          String   @id @default(cuid())
+  telegramId  String   @unique
+  username    String?
+  firstName   String?
+  lastName    String?
+  phone       String?
+  email       String?
+  isActive    Boolean  @default(true)
+  lastActivity DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Связи
+  questions   ClientBotQuestion[]
+  calculations ClientBotCalculation[]
+
+  @@map("client_bot_users")
+}
+
+model ClientBotQuestion {
+  id          String   @id @default(cuid())
+  userId      String
+  question    String
+  answer      String?
+  isAnswered  Boolean  @default(false)
+  isFixedAnswer Boolean @default(false) // Если ответ был из фиксированных
+  createdAt   DateTime @default(now())
+  answeredAt  DateTime?
+
+  // Связи
+  user        ClientBotUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("client_bot_questions")
+}
+
+model ClientBotCalculation {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Int
+  term        Int
+  interestRate Float
+  monthlyPayment Float
+  totalPayment Float
+  totalInterest Float
+  createdAt   DateTime @default(now())
+
+  // Связи
+  user        ClientBotUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("client_bot_calculations")
+}
+
+model ClientBotSession {
+  id          String   @id @default(cuid())
+  userId      String
+  sessionData Json?    // Состояние пользователя, данные калькулятора и т.д.
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("client_bot_sessions")
+}
+
+// Модели для авторизации
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role      UserRole @default(CLIENT)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Связи
+  applications Application[]
+  sessions     Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  // Связи
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+enum UserRole {
+  CLIENT
+  ADMIN
 }

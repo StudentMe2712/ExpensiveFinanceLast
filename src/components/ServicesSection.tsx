@@ -1,70 +1,74 @@
+'use client'
+
 import { FileText, CreditCard, TrendingUp, CheckCircle } from 'lucide-react'
 import ApplicationFormButton from './ApplicationFormButton'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const ServicesSection = () => {
+  const { t } = useLanguage()
+  
   const services = [
     {
       icon: FileText,
-      title: 'Подготовка заявки для банков',
-      description: 'Помогаем правильно оформить все необходимые документы и заявки для максимальных шансов на одобрение.',
+      title: t('services.mainServices.applicationPreparation.title'),
+      description: t('services.mainServices.applicationPreparation.description'),
       features: [
-        'Анализ кредитной истории',
-        'Подготовка справок о доходах',
-        'Оформление заявки в банк',
-        'Сопровождение процесса'
+        t('services.mainServices.applicationPreparation.features.creditHistoryAnalysis'),
+        t('services.mainServices.applicationPreparation.features.incomeDocuments'),
+        t('services.mainServices.applicationPreparation.features.bankApplication'),
+        t('services.mainServices.applicationPreparation.features.processSupport')
       ]
     },
     {
       icon: CreditCard,
-      title: 'Помощь клиентам с плохой кредитной историей',
-      description: 'Специализируемся на работе с клиентами, у которых есть проблемы с кредитной историей.',
+      title: t('services.mainServices.badCreditHelp.title'),
+      description: t('services.mainServices.badCreditHelp.description'),
       features: [
-        'Восстановление кредитной истории',
-        'Поиск банков с мягкими условиями',
-        'Реструктуризация долгов',
-        'Консультации по улучшению КИ'
+        t('services.mainServices.badCreditHelp.features.creditHistoryRestoration'),
+        t('services.mainServices.badCreditHelp.features.softConditionsBanks'),
+        t('services.mainServices.badCreditHelp.features.debtRestructuring'),
+        t('services.mainServices.badCreditHelp.features.creditImprovementConsultation')
       ]
     },
     {
       icon: TrendingUp,
-      title: 'Консультации по повышению шансов на одобрение',
-      description: 'Даём профессиональные советы по улучшению финансового положения и увеличению вероятности одобрения.',
+      title: t('services.mainServices.approvalConsultation.title'),
+      description: t('services.mainServices.approvalConsultation.description'),
       features: [
-        'Анализ финансового состояния',
-        'Рекомендации по улучшению КИ',
-        'Выбор оптимальных условий',
-        'Стратегия подачи заявок'
+        t('services.mainServices.approvalConsultation.features.financialAnalysis'),
+        t('services.mainServices.approvalConsultation.features.creditImprovementRecommendations'),
+        t('services.mainServices.approvalConsultation.features.optimalConditions'),
+        t('services.mainServices.approvalConsultation.features.applicationStrategy')
       ]
     }
   ]
 
   return (
-    <section id="services" className="section-padding luxury-gradient decorative-grid">
+    <section id="services" className="section-padding luxury-gradient decorative-grid transition-colors duration-300">
       <div className="container-max">
         <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-            Наши услуги
+          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            {t('services.mainServices.title')}
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Полный спектр услуг для решения ваших финансовых вопросов. 
-            Мы работаем с любыми ситуациями и находим оптимальные решения.
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            {t('services.mainServices.subtitle')}
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {services.map((service, index) => (
-            <div key={index} className="card-medium glow-medium group">
+            <div key={index} className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:shadow-primary-500/20 group">
               <div className="flex justify-center mb-6">
                 <div className="w-16 h-16 bg-gradient-to-r from-primary-500 to-primary-700 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <service.icon size={32} className="text-white" />
                 </div>
               </div>
               
-              <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
                 {service.title}
               </h3>
               
-              <p className="text-gray-600 mb-6 text-center leading-relaxed">
+              <p className="text-gray-600 dark:text-gray-300 mb-6 text-center leading-relaxed">
                 {service.description}
               </p>
               
@@ -72,7 +76,7 @@ const ServicesSection = () => {
                 {service.features.map((feature, featureIndex) => (
                   <li key={featureIndex} className="flex items-center space-x-3">
                     <CheckCircle size={16} className="text-primary-500 flex-shrink-0" />
-                    <span className="text-gray-700 text-sm">{feature}</span>
+                    <span className="text-gray-700 dark:text-gray-300 text-sm">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -82,53 +86,41 @@ const ServicesSection = () => {
 
         {/* Дополнительная информация */}
         <div className="mt-16 text-center">
-          <div className="bg-white rounded-2xl p-8 shadow-lg max-w-4xl mx-auto">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Как мы работаем?
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg max-w-4xl mx-auto transition-colors duration-300">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              {t('services.howWeWork.title')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
               <div className="text-center">
                 <div className="w-12 h-12 bg-primary-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 text-lg font-bold">
                   1
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">Консультация</h4>
-                <p className="text-sm text-gray-600">Анализируем вашу ситуацию</p>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('services.howWeWork.step1.title')}</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">{t('services.howWeWork.step1.description')}</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-primary-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 text-lg font-bold">
                   2
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">Подготовка</h4>
-                <p className="text-sm text-gray-600">Собираем необходимые документы</p>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('services.howWeWork.step2.title')}</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">{t('services.howWeWork.step2.description')}</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-primary-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 text-lg font-bold">
                   3
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">Подача</h4>
-                <p className="text-sm text-gray-600">Подаём заявку в банк</p>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('services.howWeWork.step3.title')}</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">{t('services.howWeWork.step3.description')}</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-primary-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 text-lg font-bold">
                   4
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">Результат</h4>
-                <p className="text-sm text-gray-600">Получаем одобрение</p>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('services.howWeWork.step4.title')}</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">{t('services.howWeWork.step4.description')}</p>
               </div>
             </div>
           </div>
-        </div>
-        
-        {/* Призыв к действию */}
-        <div className="text-center mt-16">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            Нужна помощь с получением кредита?
-          </h3>
-          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-            Выберите подходящую услугу или оставьте заявку для бесплатной консультации. 
-            Наши эксперты помогут найти лучшее решение для вашей ситуации.
-          </p>
-          <ApplicationFormButton />
         </div>
       </div>
     </section>
