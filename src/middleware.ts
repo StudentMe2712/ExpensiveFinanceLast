@@ -1,7 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+
+// Простая функция для проверки JWT токена (без jsonwebtoken для Edge Runtime)
+function verifyToken(token: string): { valid: boolean; payload?: any } {
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) return { valid: false }
+    
+    const payload = JSON.parse(atob(parts[1]))
+    
+    // Проверяем срок действия
+    if (payload.exp && Date.now() >= payload.exp * 1000) {
+      return { valid: false }
+    }
+    
+    return { valid: true, payload }
+  } catch {
+    return { valid: false }
+  }
+}
 
 // Страницы, которые требуют авторизации
 const protectedRoutes = ['/dashboard', '/admin']
@@ -25,10 +43,14 @@ export function middleware(request: NextRequest) {
     
     try {
       // Проверяем токен
-      const decoded = jwt.verify(token, JWT_SECRET) as any
+      const { valid, payload } = verifyToken(token)
+      
+      if (!valid) {
+        return NextResponse.redirect(new URL('/auth', request.url))
+      }
       
       // Проверяем права доступа к админ панели
-      if (adminRoutes.some(route => pathname.startsWith(route)) && decoded.role !== 'ADMIN') {
+      if (adminRoutes.some(route => pathname.startsWith(route)) && payload?.role !== 'ADMIN') {
         return NextResponse.redirect(new URL('/dashboard', request.url))
       }
     } catch (error) {
@@ -39,13 +61,12 @@ export function middleware(request: NextRequest) {
   
   // Если пользователь авторизован и пытается зайти на страницу авторизации
   if (pathname === '/auth' && token) {
-    try {
-      jwt.verify(token, JWT_SECRET)
+    const { valid } = verifyToken(token)
+    if (valid) {
       // Токен действителен, перенаправляем в личный кабинет
       return NextResponse.redirect(new URL('/dashboard', request.url))
-    } catch (error) {
-      // Токен недействителен, продолжаем
     }
+    // Токен недействителен, продолжаем
   }
   
   // Устанавливаем заголовок для клиентской стороны

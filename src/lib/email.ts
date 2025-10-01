@@ -21,7 +21,7 @@ export async function sendEmailNotification(application: Application) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: process.env.ADMIN_EMAIL,
-    subject: `Новая заявка от ${application.fullName} - Expensive Finance`,
+    subject: `Новая заявка от ${application.name} - Expensive Finance`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #f59e0b, #d97706); padding: 20px; text-align: center;">
@@ -36,7 +36,7 @@ export async function sendEmailNotification(application: Application) {
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #374151;">ФИО:</td>
-                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #1f2937;">${application.fullName}</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #1f2937;">${application.name}</td>
               </tr>
               <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #374151;">Телефон:</td>
@@ -52,7 +52,7 @@ export async function sendEmailNotification(application: Application) {
               </tr>
               <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #374151;">Сумма кредита:</td>
-                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-weight: bold;">${application.loanAmount.toLocaleString('ru-RU')} ₽</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-weight: bold;">${application.loanAmount ? application.loanAmount.toLocaleString('ru-RU') + ' ₽' : 'Не указана'}</td>
               </tr>
               <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #374151;">Статус:</td>
@@ -101,6 +101,7 @@ export async function sendEmailNotification(application: Application) {
 // Получение текста статуса на русском языке
 function getStatusText(status: ApplicationStatus): string {
   const statusMap: Record<ApplicationStatus, string> = {
+    [ApplicationStatus.NEW]: 'Новая заявка',
     [ApplicationStatus.PENDING]: 'Ожидает рассмотрения',
     [ApplicationStatus.IN_PROGRESS]: 'В обработке',
     [ApplicationStatus.SENT_TO_BANK]: 'Отправлено в банк',

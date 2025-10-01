@@ -14,8 +14,9 @@ const updateNewsSchema = z.object({
 // PUT - обновление новости
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params
   try {
     // Проверяем авторизацию
     const token = request.cookies.get('auth-token')?.value
@@ -79,8 +80,9 @@ export async function PUT(
 // DELETE - удаление новости
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params
   try {
     // Проверяем авторизацию
     const token = request.cookies.get('auth-token')?.value

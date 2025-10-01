@@ -12,8 +12,9 @@ const statusSchema = z.object({
 // PUT - обновление статуса заявки
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params
   try {
     // Проверяем авторизацию
     const token = request.cookies.get('auth-token')?.value
