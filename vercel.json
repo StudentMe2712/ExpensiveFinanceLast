@@ -5,6 +5,33 @@
   "functions": {
     "src/app/api/applications/route.ts": {
       "maxDuration": 30
+    },
+    "src/app/api/applications/[id]/status/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/auth/login/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/auth/register/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/auth/logout/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/auth/me/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/news/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/news/[id]/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/whatsapp/route.ts": {
+      "maxDuration": 30
     }
+  },
+  "env": {
+    "NODE_ENV": "production"
   }
 }
